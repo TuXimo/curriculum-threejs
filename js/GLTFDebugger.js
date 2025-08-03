@@ -233,30 +233,37 @@ export default class GLTFDebugger {
     }
 
     createDebugUI() {
-    this.debugContainer = document.createElement('div');
-    this.debugContainer.style.position = 'absolute';
-    this.debugContainer.style.bottom = '10px';
-    this.debugContainer.style.left = '10px';
-    this.debugContainer.style.backgroundColor = 'rgba(0,0,0,0.7)';
-    this.debugContainer.style.color = 'white';
-    this.debugContainer.style.padding = '10px';
-    this.debugContainer.style.borderRadius = '5px';
-    this.debugContainer.style.fontFamily = 'Arial, sans-serif';
-    this.debugContainer.style.zIndex = '100';
-    this.debugContainer.style.maxHeight = '80vh';
-    this.debugContainer.style.overflow = 'auto';
-    
-    this.debugContainer.innerHTML = `
-        <h3 style="margin-top:0;">GLTF Debugger</h3>
-        <div id="debug-hover-info" style="margin-bottom:15px;"></div>
-        <div id="debug-camera-info" style="margin-bottom:15px;"></div>
+        this.debugContainer = document.createElement('div');
+        this.debugContainer.style.position = 'absolute';
+        this.debugContainer.style.bottom = '10px';
+        this.debugContainer.style.left = '10px';
+        this.debugContainer.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        this.debugContainer.style.color = 'white';
+        this.debugContainer.style.padding = '10px';
+        this.debugContainer.style.borderRadius = '5px';
+        this.debugContainer.style.fontFamily = 'Arial, sans-serif';
+        this.debugContainer.style.zIndex = '100';
+        this.debugContainer.style.maxHeight = '80vh';
+        this.debugContainer.style.overflow = 'auto';
         
-        <div id="preset-buttons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;"></div>
-        
-        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <button id="save-preset" style="padding:5px;">Guardar Preset</button>
-            <button id="copy-coords" style="padding:5px;">Copiar Coordenadas</button>
-            <button id="apply-coords" style="padding:5px;">Aplicar Coordenadas</button>
+        // Añade un contenedor para el título y el botón de toggle
+        this.debugContainer.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin-top:0;">GLTF Debugger</h3>
+            <button id="toggle-debugger" style="padding: 3px 8px; font-size: 12px;">Ocultar</button>
+        </div>
+        <div id="debugger-content">
+            <div id="debug-hover-info" style="margin-bottom:15px;"></div>
+            <div id="debug-camera-info" style="margin-bottom:15px;"></div>
+            
+            <h4>Camera Presets</h4>
+            <div id="preset-buttons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;"></div>
+            
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <button id="save-preset" style="padding:5px;">Guardar Preset</button>
+                <button id="copy-coords" style="padding:5px;">Copiar Coordenadas</button>
+                <button id="apply-coords" style="padding:5px;">Aplicar Coordenadas</button>
+            </div>
         </div>
     `;
     
@@ -266,7 +273,23 @@ export default class GLTFDebugger {
     document.getElementById('save-preset').addEventListener('click', this.saveCameraPreset);
     document.getElementById('copy-coords').addEventListener('click', this.copyCameraCoords);
     document.getElementById('apply-coords').addEventListener('click', this.applyCameraCoords);
+    
+    // Añade listener para el nuevo botón de toggle
+    document.getElementById('toggle-debugger').addEventListener('click', this.toggleDebugger.bind(this));
 }
+
+    toggleDebugger() {
+        const content = document.getElementById('debugger-content');
+        const toggleBtn = document.getElementById('toggle-debugger');
+        
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            toggleBtn.textContent = 'Ocultar';
+        } else {
+            content.style.display = 'none';
+            toggleBtn.textContent = 'Mostrar';
+        }
+    }
 
     enable() {
         if (this.isEnabled) return;
