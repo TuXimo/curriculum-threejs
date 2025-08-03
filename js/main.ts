@@ -5,7 +5,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import GLTFDebugger from './GLTFDebugger.js';
-
+import CameraController from './cameraController.js';
 
 // Variables globales
 let scene, camera, renderer, controls;
@@ -13,13 +13,15 @@ let scene, camera, renderer, controls;
 let starsGeometry, starsMaterial, stars;
 let model, debuggerVar;
 
+let cameraController;
+
 async function init() {
     // Crear escena
     scene = new THREE.Scene();
     
     // Crear cámara
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 30;
+    camera.position.copy(new THREE.Vector3(-22.498,9.169,5.333));
     
     // Crear renderizador
     renderer = new THREE.WebGLRenderer({ 
@@ -32,11 +34,19 @@ async function init() {
     
     // Configurar controles
     controls = new OrbitControls(camera, renderer.domElement);
+
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     //controls.enableZoom = false;
     controls.autoRotate = false;
     controls.autoRotateSpeed = 0.5;
+
+    cameraController = new CameraController(camera, controls);
+    cameraController.defineShot('vista-frontal', {
+    position: new THREE.Vector3(-11.56,7.06,3.87),
+    rotation: new THREE.Vector3(-55.42-76.87,-54.71),
+    target: new THREE.Vector3(1.29,4.6,2.17),
+    });
     
     // Luces
     const ambientLight = new THREE.AmbientLight(0x404040);
@@ -62,6 +72,18 @@ async function init() {
     
     // Animación
     animate();
+
+    //Setup camera controller
+    cameraController.defineShot('default',
+        {
+            position: new THREE.Vector3(-11.564,7.069,3.879),
+            rotation: { x: -55.42, y: -76.87, z: -54.71}, // Usado si no hay controls
+            target: new THREE.Vector3(1.29,4.6,2.17), // Usado si hay OrbitControls
+            //fov: 35
+        }
+    );
+
+    cameraController.activateShot('default');
 }
 
 async function loadModel() {

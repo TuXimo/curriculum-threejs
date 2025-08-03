@@ -2,11 +2,12 @@ import * as THREE from 'three';
 
 
 export default class GLTFDebugger {
-    constructor(scene, camera, renderer) {
+    constructor(scene, camera, renderer, cameraController) {
         // Propiedades básicas
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
+        this.cameraController = cameraController;
         this.controls = null;
         
         // Configuración inicial
@@ -98,17 +99,48 @@ export default class GLTFDebugger {
             this.updatePresetButtons();
         };
 
-        this.copyCameraCoords = () => {
-            const textarea = document.getElementById('camera-coords');
-            textarea.select();
-            document.execCommand('copy');
+        this.copyCameraCoords = async () => {
+        
+        try {
+        // Obtener los datos actuales de la cámara
+        const cameraData = {
+            position: this.camera.position.toArray().map(n => parseFloat(n.toFixed(3))),
+            rotation: [
+                parseFloat(THREE.MathUtils.radToDeg(this.camera.rotation.x).toFixed(3)),
+                parseFloat(THREE.MathUtils.radToDeg(this.camera.rotation.y).toFixed(3)),
+                parseFloat(THREE.MathUtils.radToDeg(this.camera.rotation.z).toFixed(3))
+            ],
+            target: this.controls?.target?.toArray().map(n => parseFloat(n.toFixed(3))) || [0, 0, 0]
+        };
+
+        const textToCopy = JSON.stringify(cameraData, null, 2);
+        
+        // Usar la API del portapapeles moderna
+        await navigator.clipboard.writeText(textToCopy);
+
+        // Feedback visual mejorado
+        const copyBtn = document.getElementById('copy-coords');
+        const originalText = copyBtn.textContent;
+
+        copyBtn.textContent = "✓ Copiado!";
+        copyBtn.style.backgroundColor = '#4CAF50'; // Verde para éxito
+        
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.backgroundColor = '';
+            }, 2000);
+
+        } catch (err) {
+            console.error('Error al copiar:', err);
+            const copyBtn = document.getElementById('copy-coords');
+            copyBtn.textContent = "Error al copiar";
+            copyBtn.style.backgroundColor = '#f44336'; // Rojo para error
             
-            // Feedback visual
-            const originalText = textarea.value;
-            textarea.value = "¡Coordenadas copiadas al portapapeles!";
             setTimeout(() => {
-                textarea.value = originalText;
-            }, 1000);
+                copyBtn.textContent = "Copiar Coordenadas";
+                copyBtn.style.backgroundColor = '';
+            }, 2000);
+        }
         };
 
         this.applyCameraCoords = () => 
